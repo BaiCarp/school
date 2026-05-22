@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>中国高等院校名录 - 教育部2025年官方数据</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 霞鹜文楷字体 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.6.0/style.css">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="app-container container-xxl px-3 px-lg-4 py-4">
+            <!-- 头部 -->
+            <div class="header text-center mb-4">
+                <h1 class="display-5 fw-semibold gradient-text">
+                    <i class="fas fa-seedling me-2"></i>中国高等院校名录
+                </h1>
+                <div class="stats-badge mt-2 d-inline-flex align-items-center gap-3 px-4 py-2 rounded-pill" v-if="!loading">
+                    <span><i class="fas fa-database me-1"></i> 共 {{ totalCount }} 所高校</span>
+                    <span><i class="fas fa-map-pin me-1"></i> {{ provinceList.length }} 个省级行政区</span>
+                </div>
+            </div>
+
+            <!-- 筛选卡片 -->
+            <div class="filter-card card shadow-sm border-0 mb-4 p-3">
+                <div class="card-body p-2">
+                    <div class="filter-group d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <span class="filter-label badge bg-soft-green px-3 py-2 rounded-pill">
+                            <i class="fas fa-tag me-1"></i> 分类
+                        </span>
+                        <div class="btn-group flex-wrap gap-2">
+                            <button v-for="cat in categories" :key="cat.value"
+                                    @click="currentFilter = cat.value; currentPage = 1"
+                                    :class="['btn btn-sm rounded-pill filter-btn', currentFilter === cat.value ? 'active-btn' : 'btn-outline-secondary']">
+                                <i :class="cat.icon"></i> {{ cat.label }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-group d-flex flex-wrap align-items-center gap-2">
+                        <span class="filter-label badge bg-soft-green px-3 py-2 rounded-pill">
+                            <i class="fas fa-map-marker-alt me-1"></i> 所在省份
+                        </span>
+                        <div class="province-scroll d-flex flex-wrap gap-2" style="max-height: 130px; overflow-y: auto;">
+                            <button :class="['btn btn-sm rounded-pill province-btn', currentProvince === 'all' ? 'active-btn' : 'btn-light']"
+                                    @click="currentProvince = 'all'; currentPage = 1">
+                                <i class="fas fa-globe"></i> 全部
+                            </button>
+                            <button v-for="prov in provinceList" :key="prov"
+                                    :class="['btn btn-sm rounded-pill province-btn', currentProvince === prov ? 'active-btn' : 'btn-light']"
+                                    @click="currentProvince = prov; currentPage = 1">
+                                {{ prov }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="search-section mb-4" style="max-width: 560px; margin: 0 auto 1.8rem auto;">
+                <div class="search-wrapper input-group shadow-sm rounded-pill overflow-hidden border border-light">
+                    <span class="input-group-text bg-white border-0 ps-4"><i class="fas fa-search text-success"></i></span>
+                    <input type="text" class="form-control border-0 py-2" v-model="searchKeyword" 
+                           placeholder="输入学校名称、所在地、主管部门..." @keyup.enter="currentPage = 1">
+                    <button class="btn btn-search px-4 rounded-pill" type="button" @click="currentPage = 1">
+                        <i class="fas fa-arrow-right me-1"></i> 查找
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div v-if="loading" class="text-center py-5">
+                <i class="fas fa-spinner fa-pulse fa-3x text-success"></i>
+                <p class="mt-3 text-secondary">正在加载高校数据...</p>
+            </div>
+
+            <template v-else>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="text-muted small"><i class="fas fa-filter"></i> 共找到 {{ filteredTotal }} 所高校</div>
+                </div>
+
+                <!-- 高校网格 - 使用自定义 flex 布局，卡片宽度一致 -->
+                <div class="university-grid" v-if="paginatedList.length">
+                    <div class="col" v-for="uni in paginatedList" :key="uni.id">
+                        <div class="card university-card h-100 border-0 shadow-sm transition-card">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title uni-name fw-bold mb-2">{{ uni.name }}</h5>
+                                        <div class="badge-group d-flex flex-wrap gap-1 mb-2">
+                                            <span class="badge tag-doublefirst" v-if="uni.is_doubleFirst">
+                                                <i class="fas fa-crown me-1"></i> 双一流
+                                            </span>
+                                            <span class="badge tag-985" v-if="uni.is_985">
+                                                <i class="fas fa-star me-1"></i> 985工程
+                                            </span>
+                                            <span class="badge tag-211" v-if="uni.is_211">
+                                                <i class="fas fa-trophy me-1"></i> 211工程
+                                            </span>
+                                            <span class="badge tag-benke" v-if="uni.level === '本科'">
+                                                <i class="fas fa-graduation-cap me-1"></i> 本科
+                                            </span>
+                                            <span class="badge tag-zhuanke" v-if="uni.level === '专科'">
+                                                <i class="fas fa-chalkboard-user me-1"></i> 专科/高职
+                                            </span>
+                                            <span class="badge tag-chengren" v-if="uni.type === '成人高等学校'">
+                                                <i class="fas fa-book-open me-1"></i> 成人高校
+                                            </span>
+                                            <span class="badge tag-minsu" v-if="uni.remark === '民办'">
+                                                <i class="fas fa-school me-1"></i> 民办
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="logo-area ms-2 d-flex align-items-center justify-content-center bg-light rounded-3 border" 
+                                         style="width: 56px; height: 56px; flex-shrink: 0;">
+                                        <img v-if="uni.logoUrl" :src="uni.logoUrl" class="uni-logo img-fluid" 
+                                             :alt="uni.name" @error="uni.logoUrl = null" style="max-width: 48px; max-height: 48px;">
+                                        <i v-else class="fas fa-landmark fs-3 text-secondary"></i>
+                                    </div>
+                                </div>
+                                <div class="detail-info mt-2">
+                                    <div class="detail-item small text-secondary mb-1">
+                                        <i class="fas fa-map-marker-alt me-2 text-success"></i> 
+                                        <span>所在地：{{ uni.location || uni.province || '——' }}</span>
+                                    </div>
+                                    <div class="detail-item small text-secondary mb-1">
+                                        <i class="fas fa-building-columns me-2 text-success"></i> 
+                                        <span>主管部门：{{ uni.department || '——' }}</span>
+                                    </div>
+                                    <div class="detail-item small text-secondary" v-if="uni.school_code">
+                                        <i class="fas fa-qrcode me-2 text-success"></i> 
+                                        <span>标识码：{{ uni.school_code }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+                                <small class="text-muted">
+                                    <i class="far fa-calendar-alt me-1"></i> 数据来源：教育部2025年全国高等学校名单
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 空状态 -->
+                <div v-else class="empty-state text-center py-5 my-4 rounded-4 bg-light">
+                    <i class="fas fa-leaf-heart fa-2x text-muted mb-2"></i>
+                    <p class="mb-0">没有找到相关大学，请尝试其他关键词~</p>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination-wrapper d-flex justify-content-center mt-5" v-if="filteredTotal > pageSize">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li class="page-item" :class="{disabled: currentPage === 1}">
+                                <button class="page-link" @click="goPage(1)"><i class="fas fa-angle-double-left"></i></button>
+                            </li>
+                            <li class="page-item" :class="{disabled: currentPage === 1}">
+                                <button class="page-link" @click="goPage(currentPage-1)"><i class="fas fa-angle-left"></i></button>
+                            </li>
+                            <li class="page-item" v-for="p in displayPages" :key="p" :class="{active: currentPage === p}">
+                                <button class="page-link" v-if="p !== '...'" @click="goPage(p)">{{ p }}</button>
+                                <span v-else class="page-link disabled">…</span>
+                            </li>
+                            <li class="page-item" :class="{disabled: currentPage === totalPages}">
+                                <button class="page-link" @click="goPage(currentPage+1)"><i class="fas fa-angle-right"></i></button>
+                            </li>
+                            <li class="page-item" :class="{disabled: currentPage === totalPages}">
+                                <button class="page-link" @click="goPage(totalPages)"><i class="fas fa-angle-double-right"></i></button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </template>
+
+            <footer class="text-center mt-5 pt-3 border-top small text-muted">
+                <i class="fas fa-copyright"></i> 
+                数据基于<a href="http://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html">教育部2025年名单</a> · <a href="https://github.com/lxgw/LxgwWenKai">霞鹜文楷字体</a> · <a href="https://www.urongda.com/">校徽Icon</a>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 主逻辑 JS -->
+    <script src="app.js"></script>
+</body>
+</html>
