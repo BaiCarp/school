@@ -1,0 +1,243 @@
+/* 全局风格 - 春日清新色调 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'LXGW WenKai', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(145deg, #eef7f0 0%, #deefe8 100%);
+    color: #1e4a3d;
+    line-height: 1.5;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #cfe3db;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb {
+    background: #5fa88f;
+    border-radius: 3px;
+}
+
+/* 渐变标题 */
+.gradient-text {
+    background: linear-gradient(135deg, #2d7a5e, #88b69c);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+/* 统计徽章 */
+.stats-badge {
+    background: #e1f3ea;
+    backdrop-filter: blur(2px);
+    color: #2c7a60;
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+/* 筛选卡片 */
+.filter-card {
+    background: rgba(255, 255, 240, 0.86);
+    backdrop-filter: blur(2px);
+    border-radius: 28px;
+    border: 1px solid #cfebdf;
+}
+
+.filter-label {
+    background: #cbe6db;
+    color: #286e54;
+    font-weight: 600;
+}
+
+.filter-btn, .province-btn {
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover, .province-btn:hover {
+    transform: translateY(-1px);
+    background: #e2f3ea;
+    border-color: #8fc0ab;
+}
+
+.active-btn {
+    background: #5f9e86 !important;
+    color: white !important;
+    border-color: #5f9e86 !important;
+    box-shadow: 0 4px 10px rgba(95, 158, 134, 0.2);
+}
+
+/* 搜索框 */
+.search-wrapper {
+    background: white;
+    border-radius: 80px;
+    box-shadow: 0 6px 14px rgba(88, 129, 107, 0.1);
+    border: 1px solid #cbebdd;
+}
+
+.search-wrapper:focus-within {
+    border-color: #5f9e86;
+    box-shadow: 0 6px 14px rgba(95, 158, 134, 0.15);
+}
+
+.btn-search {
+    background: #5f9e86;
+    color: white;
+    transition: background 0.2s;
+}
+
+.btn-search:hover {
+    background: #418169;
+    color: white;
+}
+
+/* ========== 高校网格布局 - 使用 Grid 布局，完美自适应 ========== */
+.university-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin: 0;
+}
+
+.university-grid .col {
+    padding: 0;
+    margin: 0;
+    min-width: 0; /* 防止内容溢出 */
+}
+
+/* 卡片本身 */
+.university-card {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(2px);
+    border-radius: 24px;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+    border: 1px solid #d9efdf;
+    display: flex;
+    flex-direction: column;
+}
+
+.university-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 28px -12px rgba(72, 112, 88, 0.2);
+    border-color: #b4d7c4;
+    background: white;
+}
+
+.university-card .card-body {
+    flex: 1;
+}
+
+.uni-name {
+    font-size: 1.05rem;
+    font-weight: 650;
+    color: #1f543f;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* 标签组 */
+.badge-group {
+    margin-top: 4px;
+}
+
+.badge-group .badge {
+    font-weight: 500;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+}
+
+/* 详情信息 */
+.detail-info {
+    margin-top: 10px;
+}
+
+.detail-item {
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+}
+
+.detail-item i {
+    width: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* 标签样式 */
+.tag-doublefirst {
+    background: #e0f0e5;
+    color: #1e785b;
+}
+.tag-985 {
+    background: #fef1df;
+    color: #af6a2c;
+}
+.tag-211 {
+    background: #e2ecf5;
+    color: #2e6fa5;
+}
+.tag-benke {
+    background: #dcf2e4;
+    color: #24745b;
+}
+.tag-zhuanke {
+    background: #fff0e0;
+    color: #c26b2a;
+}
+.tag-chengren {
+    background: #eae2f7;
+    color: #6f42c1;
+}
+.tag-minsu {
+    background: #f0e6ff;
+    color: #7c3aed;
+}
+
+/* 空状态 */
+.empty-state {
+    background: #edf7f1;
+    border: 1px solid #cee8dc;
+    color: #578b74;
+}
+
+/* 分页 */
+.pagination .page-link {
+    color: #2d7a5e;
+    background: white;
+    border-color: #cde6dd;
+}
+
+.pagination .page-item.active .page-link {
+    background: #5f9e86;
+    border-color: #5f9e86;
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #b8d5c8;
+    background: #f5faf7;
+}
+
+/* 响应式：小屏幕时卡片稍微缩小 */
+@media (max-width: 700px) {
+    .university-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 560px) {
+    .university-grid {
+        grid-template-columns: 1fr;
+    }
+}
